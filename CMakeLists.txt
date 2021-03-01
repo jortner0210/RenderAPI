@@ -16,7 +16,7 @@ elseif(UNIX)
     message("Platform Detected: LINUX")
     set(VULKAN_DIR ${LIB_DIR}/linux/vulkan)
     set(GLFW_DIR ${LIB_DIR}/linux/glfw)
-    
+
 endif()
 
 
@@ -31,12 +31,6 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${VULKAN_DIR}/include ${GLFW_DIR
 
 # EXECUTABLE
 add_executable(${PROJECT_NAME} ${SOURCES})
-
-# LINK VULKAN AND GLFW
-#target_link_directories(
-#    ${PROJECT_NAME} PRIVATE 
-#    ${GLFW_DIR}/bin
-#)
 
 message(STATUS "Attempting auto locate Vulkan using CMake......")
 find_package(Vulkan REQUIRED FATAL_ERROR)
