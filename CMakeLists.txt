@@ -22,14 +22,14 @@ set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 file(GLOB SOURCES ${SRC_DIR}/*.c)
 
 # LIBRARY DIRECTORIES
-#set(VULKAN_DIR ${LIB_DIR}/win/vulkan)
-#set(GLFW_DIR ${LIB_DIR}/win/glfw)
+set(VULKAN_DIR ${LIB_DIR}/win/vulkan)
+set(GLFW_DIR ${LIB_DIR}/win/glfw)
 
-set(VULKAN_DIR ${LIB_DIR}/linux/vulkan)
-set(GLFW_DIR ${LIB_DIR}/linux/glfw)
+#set(VULKAN_DIR ${LIB_DIR}/linux/vulkan)
+#set(GLFW_DIR ${LIB_DIR}/linux/glfw)
 
 # INCLUDE DIRECTORIES
-include_directories(${CMAKE_SOURCE_DIR}/include ${VULKAN_DIR}/include ${GLFW_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${VULKAN_DIR}/Include ${GLFW_DIR}/include)
 
 # EXECUTABLE
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -49,18 +49,18 @@ message(STATUS "Successfully located the Vulkan SDK: ${Vulkan_INCLUDE_DIRS}")
 target_link_libraries(
     ${PROJECT_NAME} 
     Vulkan::Vulkan
-    glfw3
-    dl
-    pthread
-    m
+    #glfw3
+    #dl
+    #pthread
+    #m
     #${CMAKE_SOURCE_DIR}/lib/linux/glfw/bin/libglfw.a
-    #C:/Users/jo3f/Repos/RenderAPI/Test/lib/win/glfw/bin/glfw3dll.lib
+    ${CMAKE_SOURCE_DIR}/lib/win/glfw/bin/glfw3dll.lib
     #C:/Users/jo3f/Repos/RenderAPI/Test/lib/win/vulkan/Lib/vulkan-1.lib
 )
 
 # COPY GLFW DLL TO BUILD/BIN
-#add_custom_command(TARGET ${PROJECT_NAME}
-#    POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy ${GLFW_DIR}/bin/glfw3.dll "${CMAKE_BINARY_DIR}/bin/Debug"
-#    COMMENT "Copy dll file to ${CMAKE_BINARY_DIR}/bin directory" VERBATIM
-#)
+add_custom_command(TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${GLFW_DIR}/bin/glfw3.dll "${CMAKE_BINARY_DIR}/bin/Debug"
+    COMMENT "Copy dll file to ${CMAKE_BINARY_DIR}/bin directory" VERBATIM
+)
