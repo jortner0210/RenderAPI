@@ -11,6 +11,11 @@ if(WIN32)
     message("Platform Detected: WINDOWS")
     set(VULKAN_DIR ${LIB_DIR}/win/vulkan)
     set(GLFW_DIR ${LIB_DIR}/win/glfw)
+
+elseif(UNIX)
+    message("Platform Detected: LINUX")
+    set(VULKAN_DIR ${LIB_DIR}/linux/vulkan)
+    set(GLFW_DIR ${LIB_DIR}/linux/glfw)
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -23,6 +28,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${VULKAN_DIR}/include ${GLFW_DIR
 
 # EXECUTABLE
 add_executable(${PROJECT_NAME} ${SOURCES})
+
 
 # LINK VULKAN AND GLFW
 #target_link_directories(
@@ -52,4 +58,5 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy ${GLFW_DIR}/bin/glfw3.dll "${CMAKE_BINARY_DIR}/bin/Debug"
         COMMENT "Copy dll file to ${CMAKE_BINARY_DIR}/bin directory" VERBATIM
     )
+    
 endif()
