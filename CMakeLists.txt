@@ -57,7 +57,7 @@ if(WIN32)
         COMMENT "Copy dll file to ${CMAKE_BINARY_DIR}/bin directory" VERBATIM
     )
     
-elseif()
+elseif(UNIX)
 
     target_link_libraries(
         ${PROJECT_NAME} 
