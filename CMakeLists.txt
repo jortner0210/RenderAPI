@@ -4,7 +4,7 @@ set( CMAKE_C_STANDARD 99 )
 project( vlayer )
 
 # PROJECT DIRECTORIES
-set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/AR)
 set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 
 set(GLFW_DIR ${CMAKE_SOURCE_DIR}/lib/glfw)
@@ -20,7 +20,7 @@ add_subdirectory(${GLFW_DIR})
 file(GLOB SOURCES ${SRC_DIR}/*.c)
 
 # INCLUDE DIRECTORIES
-include_directories(${CMAKE_SOURCE_DIR}/include ${Vulkan_INCLUDE_DIRS} ${GLFW_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/AR ${Vulkan_INCLUDE_DIRS} ${GLFW_DIR}/include)
 
 # EXECUTABLE
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -31,29 +31,3 @@ target_link_libraries(
     Vulkan::Vulkan
     glfw
 )
-
-if(WIN32)
-    
-    #target_link_libraries(
-    #    ${PROJECT_NAME} 
-    #    Vulkan::Vulkan
-    #    #${CMAKE_SOURCE_DIR}/lib/win/glfw/bin/glfw3dll.lib
-    #)
-
-    # COPY GLFW DLL TO BUILD/BIN
-    #add_custom_command(TARGET ${PROJECT_NAME}
-    #    POST_BUILD
-    #    COMMAND ${CMAKE_COMMAND} -E copy C:/Users/jo3f/Repos/RenderAPI/lib/win/glfw/bin/glfw3.dll ${CMAKE_SOURCE_DIR}/build/bin/Debug/.
-    #    COMMENT "Copy dll file to ${CMAKE_BINARY_DIR}/bin directory" VERBATIM
-    #)
-    
-elseif(UNIX)
-
-    target_link_libraries(
-        ${PROJECT_NAME} 
-        Vulkan::Vulkan
-        "glfw" 
-        ${GLFW_LIBRARIES}
-    )
-
-endif()
