@@ -49,6 +49,7 @@ static AR_Result _AR_createInstance(
         const char **glfw_extensions;
 		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_ext_cnt);
 
+        // Optional
         VkApplicationInfo appInfo  = {0};
         appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pNext              = NULL;
@@ -58,6 +59,7 @@ static AR_Result _AR_createInstance(
         appInfo.engineVersion      = 1;
         appInfo.apiVersion         = VK_MAKE_VERSION(1, 0, 0);
 
+        // Not Optional
         VkInstanceCreateInfo instInfo    = {0};
         instInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         instInfo.pNext                   = NULL;
