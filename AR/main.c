@@ -68,10 +68,10 @@ int main() {
 	//
 	// Deallocate Resources
 	//
-	//destroyWindow(window);
+	destroyWindow(window);
 
-	//AR_destroyStringArray(validation_layers);
-	//AR_destroyStringArray(extensions);
+	AR_destroyStringArray(validation_layers);
+	AR_destroyStringArray(extensions);
 	return 0;
 }
 

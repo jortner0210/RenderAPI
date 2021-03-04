@@ -37,7 +37,7 @@ AR_Result AR_appendStringArray(
 		printf("Can't add more items to array");
 		return AR_ERROR;
 	}
-	arr->data[arr->len] = (char *)malloc(sizeof(char) * sizeof(string));
+	arr->data[arr->len] = (char *)malloc(sizeof(char) * (strlen(string) + 1));
 	strcpy(arr->data[arr->len], (char *)string);
 	arr->len++;
 }

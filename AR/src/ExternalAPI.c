@@ -10,7 +10,7 @@
 // Global state share between compilation units of LVL
 //
 _ARContext _ar_cxt = { 0 };
-AR_Boolean _ar_initialized = AR_FALSE;
+uint32_t _ar_initialized = 0;
 
 //////////////////////////////////////////////////////////////////////////////
 //////                        AR EXTERNAL API                           //////
@@ -28,7 +28,7 @@ AR_Result AR_destroyVulkan()
 {
     // Destroy instance
     vkDestroyInstance(_ar_cxt.instance, NULL);
-    _ar_initialized = AR_FALSE;
+    _ar_initialized = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ static AR_Result _AR_createInstance(
 )
 {  
     AR_Result res;
-    if (_ar_initialized == AR_FALSE) {
+    if (!_ar_initialized) {
         // Check Vulkan Validation Layer Support
         res = _AR_checkValidationLayerSupport(v_config->val_layer_cnt, v_config->validation_layers);
         if (AR_ENABLE_VALIDATION_LAYERS && res == AR_VALIDATION_LAYER_NOT_FOUND) {
@@ -88,7 +88,7 @@ static AR_Result _AR_createInstance(
             AR_EXIT_FAILURE("Failed to create Vulkan Instance!")
         }
 
-        _ar_initialized = AR_TRUE;
+        _ar_initialized = 1;
     }
     else 
         AR_EXIT_FAILURE("Vulkan Instance already initialized!")
