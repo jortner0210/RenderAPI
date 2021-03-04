@@ -12,8 +12,15 @@
 typedef struct ARConfig
 {
     const char* app_name;
+    
+    // Validation Layers
     char **validation_layers;
     uint32_t val_layer_cnt;
+
+    // Extensions
+    char **extensions;
+    uint32_t ext_cnt;
+
     //uint32_t requested_extension_count;
     //const char* const* requested_extensions;
 

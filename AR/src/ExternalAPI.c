@@ -45,10 +45,6 @@ static AR_Result _AR_createInstance(
             AR_EXIT_FAILURE("Requested validation layer not supported!")
         } 
 
-        uint32_t glfw_ext_cnt = 0;
-        const char **glfw_extensions;
-		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_ext_cnt);
-
         // Optional
         VkApplicationInfo appInfo  = {0};
         appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -65,8 +61,8 @@ static AR_Result _AR_createInstance(
         instInfo.pNext                   = NULL;
         instInfo.flags                   = 0;
         instInfo.pApplicationInfo        = &appInfo;
-        instInfo.enabledExtensionCount   = glfw_ext_cnt;
-        instInfo.ppEnabledExtensionNames = glfw_extensions;
+        instInfo.enabledExtensionCount   = v_config->ext_cnt;
+        instInfo.ppEnabledExtensionNames = (const char * const *)v_config->extensions;
 
         if (AR_ENABLE_VALIDATION_LAYERS) {
 			instInfo.enabledLayerCount = v_config->val_layer_cnt;
