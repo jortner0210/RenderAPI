@@ -1,7 +1,7 @@
 #ifndef AR_CORE_H
 #define AR_CORE_H
 
-#include "Common.h"
+#include "src/Common.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //////                       AR DATA STRUCTURES                         //////
@@ -94,7 +94,7 @@ typedef enum
 //////                             AR UTILS                             //////
 //////////////////////////////////////////////////////////////////////////////
 
-typedef enum
+typedef enum AR_Boolean
 {
     AR_TRUE,
     AR_FALSE

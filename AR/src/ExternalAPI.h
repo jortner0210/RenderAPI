@@ -1,7 +1,7 @@
 #ifndef AR_EXTERNAL_API_H
 #define AR_EXTERNAL_API_H
 
-#include "Core.h"
+#include "src/Core.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //////                       LVL EXTERNAL API                           //////

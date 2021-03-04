@@ -1,7 +1,7 @@
-#include "ExternalAPI.h"
-#include "Internal.h"
-#include "Common.h"
-#include "Core.h"
+#include "src/ExternalAPI.h"
+#include "src/Internal.h"
+#include "src/Common.h"
+#include "src/Core.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
@@ -10,7 +10,7 @@
 // Global state share between compilation units of LVL
 //
 _ARContext _ar_cxt = { 0 };
-uint32_t _ar_initialized = 0;
+AR_Boolean _ar_initialized = AR_FALSE;
 
 //////////////////////////////////////////////////////////////////////////////
 //////                        AR EXTERNAL API                           //////
@@ -26,11 +26,18 @@ AR_Result AR_initVulkan(
 
 AR_Result AR_destroyVulkan()
 {
-
+    // Destroy instance
+    vkDestroyInstance(_ar_cxt.instance, NULL);
+    _ar_initialized = AR_FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //////                        AR INTERNAL API                           //////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////                     AR INSTANCE FUNCTIONS                        //////
 //////////////////////////////////////////////////////////////////////////////
 
 static AR_Result _AR_createInstance(
@@ -38,7 +45,7 @@ static AR_Result _AR_createInstance(
 )
 {  
     AR_Result res;
-    if (!_ar_initialized) {
+    if (_ar_initialized == AR_FALSE) {
         // Check Vulkan Validation Layer Support
         res = _AR_checkValidationLayerSupport(v_config->val_layer_cnt, v_config->validation_layers);
         if (AR_ENABLE_VALIDATION_LAYERS && res == AR_VALIDATION_LAYER_NOT_FOUND) {
@@ -81,7 +88,7 @@ static AR_Result _AR_createInstance(
             AR_EXIT_FAILURE("Failed to create Vulkan Instance!")
         }
 
-        _ar_initialized = 1;
+        _ar_initialized = AR_TRUE;
     }
     else 
         AR_EXIT_FAILURE("Vulkan Instance already initialized!")
@@ -119,4 +126,9 @@ static AR_Result _AR_checkValidationLayerSupport(
     }
     return AR_SUCCESS;
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////                  AR PHYSICAL DEVICE FUNCTIONS                    //////
+//////////////////////////////////////////////////////////////////////////////
 

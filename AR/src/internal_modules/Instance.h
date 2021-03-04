@@ -3,11 +3,11 @@
 
 // SOURCE: https://vulkan-tutorial.com/Introduction
 
-#include "Common.h"
-#include "Core.h"
+#include "src/Common.h"
+#include "src/Core.h"
 
 //////////////////////////////////////////////////////////////////////////////
-//////                        AR INTERNAL API                           //////
+//////                     AR INSTANCE FUNCTIONS                        //////
 //////////////////////////////////////////////////////////////////////////////
 
 

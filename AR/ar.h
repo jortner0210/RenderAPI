@@ -3,5 +3,6 @@
 
 #include "src/Core.h"
 #include "src/ExternalAPI.h"
+#include "src/Utils.h"
 
 #endif
