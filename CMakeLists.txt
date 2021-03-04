@@ -4,7 +4,7 @@ set( CMAKE_C_STANDARD 99 )
 project( vlayer )
 
 # PROJECT DIRECTORIES
-set(SRC_DIR ${CMAKE_SOURCE_DIR}/AR)
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/AR/src)
 set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 
 set(GLFW_DIR ${CMAKE_SOURCE_DIR}/lib/glfw)
@@ -23,7 +23,7 @@ file(GLOB SOURCES ${SRC_DIR}/*.c)
 include_directories(${CMAKE_SOURCE_DIR}/AR ${Vulkan_INCLUDE_DIRS} ${GLFW_DIR}/include)
 
 # EXECUTABLE
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/AR/main.c ${SOURCES})
 
 # LINKAGE
 target_link_libraries(

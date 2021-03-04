@@ -1,25 +1,87 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#include "ar.h"
+
 #include <stdio.h>
+#include <errno.h> 
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+//
+// GLOBALS
+//
+#define WIDTH 800
+#define HEIGHT 600
+#define WINDOW_NAME "Vulkan"
+
+//
+// APPLICATION FUNCTIONS
+//
+void initWindow(int w, int h, const char *window_name, GLFWwindow **window);
+void mainLoop(GLFWwindow *window);
+void destroyWindow(GLFWwindow *window);
+
+//
+// Utils
+//
+//typedef struct AR_StringArray
 
 int main() {
-	glfwInit();
+	
+	//
+	// Initialize Window and Vulkan
+	//
+	GLFWwindow *window;
+    initWindow(WIDTH, HEIGHT, WINDOW_NAME, &window);
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", NULL, NULL);
+	AR_Result res;
+	ARConfig config;
+	config.app_name = "Vulkan App";
 
-	uint32_t extensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, NULL);
+	config.ext_cnt = 1;
+	config.extensions 	 = (char **)malloc(sizeof(char *) * config.ext_cnt);
+	config.extensions[0] = (char *)malloc(sizeof(char) * AR_EXTENSION_MAX_CHARS);
+	strcpy(config.extensions[0], "VK_LAYER_LUNARG_standard_validation");
 
-	printf("extension count: %d\n", extensionCount);
+	res = AR_initVulkan(&config);
 
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
-	}
+	//
+    // MAIN LOOP
+    //
+    mainLoop(window);
 
-	glfwDestroyWindow(window);
-
-	glfwTerminate();
-
+	//
+	// Deallocate Resources
+	//
+	destroyWindow(window);
 	return 0;
+}
+
+//
+// APPLICATION FUNCTIONS
+//
+
+void initWindow(int w, int h, const char *window_name, GLFWwindow **window) 
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    *window = glfwCreateWindow(w, h, window_name, NULL, NULL);
+}
+
+void mainLoop(GLFWwindow *window) 
+{
+    while (!glfwWindowShouldClose(window)) 
+    {
+        glfwPollEvents();
+    }
+}
+
+void destroyWindow(GLFWwindow *window) 
+{
+    glfwDestroyWindow(window);
+
+    glfwTerminate();
 }
