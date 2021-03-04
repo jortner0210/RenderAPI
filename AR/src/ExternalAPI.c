@@ -45,38 +45,40 @@ static AR_Result _AR_createInstance(
             AR_EXIT_FAILURE("Requested validation layer not supported!")
         } 
 
-        // Optional for instance creation
-		VkApplicationInfo app_info = { 0 };
-        app_info.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        app_info.pApplicationName   = v_config->app_name;
-        app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        app_info.pEngineName        = "No Engine";
-        app_info.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
-        app_info.apiVersion         = VK_API_VERSION_1_0;
+        uint32_t glfw_ext_cnt = 0;
+        const char **glfw_extensions;
+		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_ext_cnt);
 
-        // Not Optional for instance creation
-        VkInstanceCreateInfo create_info;
-        create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        create_info.pApplicationInfo = &app_info;
+        VkApplicationInfo appInfo  = {0};
+        appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pNext              = NULL;
+        appInfo.pApplicationName   = "Vulkan Program Template";
+        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.pEngineName        = "No Engine";
+        appInfo.engineVersion      = 1;
+        appInfo.apiVersion         = VK_MAKE_VERSION(1, 0, 0);
 
-        // Attach Requested Validation Layers if in debug mode
+        VkInstanceCreateInfo instInfo    = {0};
+        instInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        instInfo.pNext                   = NULL;
+        instInfo.flags                   = 0;
+        instInfo.pApplicationInfo        = &appInfo;
+        instInfo.enabledExtensionCount   = glfw_ext_cnt;
+        instInfo.ppEnabledExtensionNames = glfw_extensions;
+
         if (AR_ENABLE_VALIDATION_LAYERS) {
-            create_info.enabledLayerCount   = v_config->val_layer_cnt;
-			create_info.ppEnabledLayerNames = "VK_LAYER_LUNARG_standard_validation";//(const char * const *)v_config->validation_layers;
+			instInfo.enabledLayerCount = v_config->val_layer_cnt;
+            instInfo.ppEnabledLayerNames = (const char * const *)v_config->validation_layers;
             AR_DEBUG_TRACE_ARG("All Requested Validation Layers Enabled.")
         }
-        else
-            create_info.enabledLayerCount = 0;
+        else {
+            instInfo.enabledLayerCount = 0;
+            instInfo.ppEnabledLayerNames = NULL;
+        }
 
-        // Attach Requested Extensions
-		//create_info.enabledExtensionCount = 0;  //= init->requested_extension_count;
-		create_info.ppEnabledExtensionNames = glfwGetRequiredInstanceExtensions(&create_info.enabledExtensionCount);
-		create_info.enabledExtensionCount = 1;
-        //for (int i = 0; i < v_config->ext_cnt; i++) 
-        //    AR_DEBUG_TRACE_FMT("Extension Requested", v_config->extensions)    
-		VkInstance inst;
-		AR_DEBUG_TRACE_ARG("All Requested Extensions Enabled.")
-		VkResult vk_res = vkCreateInstance(&create_info, NULL, &inst);
+        // Create the Vulkan instance.
+        VkResult vk_res = vkCreateInstance(&instInfo, NULL, &_ar_cxt.instance);
+
         if (vk_res != VK_SUCCESS) {
             AR_EXIT_FAILURE("Failed to create Vulkan Instance!")
         }
