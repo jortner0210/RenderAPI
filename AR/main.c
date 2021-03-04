@@ -40,10 +40,10 @@ int main() {
 	ARConfig config;
 	config.app_name = "Vulkan App";
 
-	config.ext_cnt = 1;
-	config.extensions 	 = (char **)malloc(sizeof(char *) * config.ext_cnt);
-	config.extensions[0] = (char *)malloc(sizeof(char) * AR_EXTENSION_MAX_CHARS);
-	strcpy(config.extensions[0], "VK_LAYER_LUNARG_standard_validation");
+	config.val_layer_cnt = 1;
+	config.validation_layers 	= (char **)malloc(sizeof(char *) * config.val_layer_cnt);
+	config.validation_layers[0] = (char *)malloc(sizeof(char) * AR_EXTENSION_MAX_CHARS);
+	strcpy(config.validation_layers[0], "VK_LAYER_KHRONOS_validation"); // Windows: VK_LAYER_LUNARG_standard_validation
 
 	res = AR_initVulkan(&config);
 

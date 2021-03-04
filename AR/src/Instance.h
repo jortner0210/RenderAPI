@@ -17,8 +17,7 @@ static AR_Result _AR_createInstance(
 
 static AR_Result _AR_checkValidationLayerSupport(
     uint32_t req_layer_count, 
-    const char *req_val_layers
+    char **req_val_layers
 );
-
 
 #endif
