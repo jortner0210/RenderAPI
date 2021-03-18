@@ -1,6 +1,8 @@
 #ifndef AR_CORE_H
 #define AR_CORE_H
 
+#include <GLFW/glfw3.h>
+
 #include "src/Common.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,7 +29,7 @@ typedef struct ARConfig
     //uint32_t requested_vlayer_count;
     //const char* const* requested_vlayer_names;
 
-    //GLFWwindow *window;
+    GLFWwindow *window;
 
 } ARConfig;
 

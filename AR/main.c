@@ -57,6 +57,7 @@ int main() {
 	// Set extensions
 	config.ext_cnt 	  = extensions->len;
 	config.extensions = extensions->data;
+	config.window 	  = window;
 
 	res = AR_initVulkan(&config);
 
