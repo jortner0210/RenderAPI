@@ -1,8 +1,3 @@
-#ifndef AR_H
-#define AR_H
+#pragma once
 
-#include "src/Core.h"
-#include "src/Vulkan.h"
-#include "src/Utils.h"
-
-#endif
+#include "AR/Renderer.h"
