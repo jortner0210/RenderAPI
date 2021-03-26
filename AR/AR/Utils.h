@@ -8,7 +8,7 @@ namespace AR
 
     struct QueueFamilyIndices
     {
-        int m_GraphicsFamily     = -1;      // Location of Graphics Queue Family
+        int m_GraphicsFamily     = -1;  // Location of Graphics Queue Family
         int m_PresentationFamily = -1;  // Location of Presentation Queue Family
 
         /**
@@ -30,5 +30,13 @@ namespace AR
         VkSurfaceCapabilitiesKHR m_SurfaceCapabilities;    // Surface properties (i.e. image size/extent)
         std::vector<VkSurfaceFormatKHR> m_Formats;         // Vector of supported image formats (i.e. RGBA and size of each color)
         std::vector<VkPresentModeKHR> m_PresentationModes; // Supported surface presentation modes
+    };
+
+    /************************* Swap Chain Image *************************/
+
+    struct SwapChainImage
+    {
+        VkImage m_Image;
+        VkImageView m_ImageView;
     };
 }

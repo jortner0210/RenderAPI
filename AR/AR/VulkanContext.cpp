@@ -103,6 +103,8 @@ VulkanContext::VulkanContext(VulkanConfig &v_config) :
 
     createLogicalDevice(v_config);
 
+    createSwapChain();
+
     AR_DEBUG_TRACE_ARG(AR_DB_GOOD, "|--- VULKAN INITIALIZATION COMPLETED ---|")
 }
 
@@ -112,6 +114,8 @@ VulkanContext::VulkanContext(VulkanConfig &v_config) :
  */
 VulkanContext::~VulkanContext()
 {
+    vkDestroySwapchainKHR(m_LogicalDevice, m_SwapChain, nullptr);
+    vkDestroySurfaceKHR(m_VulkanInstance, m_Surface, nullptr);
     vkDestroyDevice(m_LogicalDevice, nullptr);
     vkDestroyInstance(m_VulkanInstance, nullptr);
 }
@@ -265,6 +269,98 @@ void VulkanContext::createLogicalDevice(VulkanConfig &v_config)
     vkGetDeviceQueue(m_LogicalDevice, indices.m_PresentationFamily, 0, &m_PresentationQueue);
 }
 
+void VulkanContext::createSwapChain()
+{
+    // Get swap chain details to pick best settings
+    SwapChainDetails sc_details = getSwapChainDetails(m_PhysicalDevice);
+
+    // Find optimal surface values for swap chain
+
+    // 1. CHOOSE BEST SURFACE FORMAT
+    VkSurfaceFormatKHR surface_format = chooseBestSurfaceFormat(sc_details.m_Formats);
+    // 2. CHOOSE BEST PRESENTATION MODE
+    VkPresentModeKHR present_mode = chooseBestPresentationMode(sc_details.m_PresentationModes);
+    // 3. CHOOSE SWAP CHAIN IMAGE RESOLUTION
+    VkExtent2D extent = chooseSwapExtent(sc_details.m_SurfaceCapabilities);
+
+    // Minimum amount of images that the swap chain can use. 
+    // Get 1 more than minimum to allow triple buffering.
+    uint32_t image_count = sc_details.m_SurfaceCapabilities.minImageCount + 1;
+
+    // Make sure image_count isn't greater than max.
+    // If max image count is zero, then there is no image count limit.
+    if (sc_details.m_SurfaceCapabilities.maxImageCount > 0 && sc_details.m_SurfaceCapabilities.maxImageCount < image_count)
+        image_count = sc_details.m_SurfaceCapabilities.minImageCount;
+
+    // Swap chain create info
+    VkSwapchainCreateInfoKHR create_info = {};
+    create_info.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    create_info.surface                  = m_Surface;
+    create_info.imageFormat              = surface_format.format;
+    create_info.imageColorSpace          = surface_format.colorSpace;
+    create_info.presentMode              = present_mode;
+    create_info.imageExtent              = extent;
+    create_info.minImageCount            = image_count;
+    create_info.imageArrayLayers         = 1;                                                 // Number of layers for each image in chain.
+    create_info.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;               // What attachment images will be used as. Set as only color.
+    create_info.preTransform             = sc_details.m_SurfaceCapabilities.currentTransform; // Transform to perform on swap chain images.
+    create_info.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;                 // How to handle the blending of images with external graphics. Set to no blending. i.e. overlapping windows. 
+    create_info.clipped                  = VK_TRUE;                                           // How to clip external graphics. i.e. behind another window.
+
+    // Set up swap chain queues
+    QueueFamilyIndices indices = getQueueFamilies(m_PhysicalDevice);
+
+    // If Graphics and Presentation families are different, then swapchain must let images be shared between families.
+    if (indices.m_GraphicsFamily != indices.m_PresentationFamily) {
+        uint32_t queue_family_indices[] = {
+            (uint32_t)indices.m_GraphicsFamily,
+            (uint32_t)indices.m_PresentationFamily
+        };
+        
+        create_info.imageSharingMode      = VK_SHARING_MODE_CONCURRENT; // Image share handling
+        create_info.queueFamilyIndexCount = 2;                          // Number of queues to share images between
+        create_info.pQueueFamilyIndices   = queue_family_indices;       // Array of queues to share between
+    }
+    else {
+        create_info.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE; // Images are exclusive to a single queue
+        create_info.queueFamilyIndexCount = 0;
+        create_info.pQueueFamilyIndices   = nullptr;
+    }
+
+    // Pass responsibilites of another swap chain to this swap chain. i.e. destroy old swap chain during window resize.
+    create_info.oldSwapchain = VK_NULL_HANDLE;
+
+    // FINALLY CREATE SWAP CHAIN
+    if (vkCreateSwapchainKHR(m_LogicalDevice, &create_info, nullptr, &m_SwapChain) != VK_SUCCESS) {
+        AR_EXIT_FAILURE("Failed to create swap chain!")
+    }
+
+    // Store format and extent for later use
+    m_SwapChainImageFormat = surface_format.format;
+    m_SwapChainExtent      = extent;
+
+    // Get swap chain images
+    uint32_t sc_image_count;
+    vkGetSwapchainImagesKHR(m_LogicalDevice, m_SwapChain, &sc_image_count, nullptr);
+    std::vector<VkImage> images(sc_image_count);
+    vkGetSwapchainImagesKHR(m_LogicalDevice, m_SwapChain, &sc_image_count, images.data());
+
+    // Store each image handle retreived from the swap chain to internal data structure
+    uint32_t i = 0;
+    m_SwapChainImages.resize(sc_image_count);
+    for (VkImage image : images) {
+        SwapChainImage sc_image = {};
+        sc_image.m_Image = image;
+        
+        // CREATE IMAGE VIEW HERE
+
+        m_SwapChainImages[i] = sc_image;
+        i++;
+    }
+
+    AR_DEBUG_TRACE_ARG(AR_DB_GOOD, "Swap Chain Created!")
+}
+
 /**
  * @brief Checks that all requested validation layers are available
  * 
@@ -385,6 +481,82 @@ bool VulkanContext::isSuitableDevice(VkPhysicalDevice device)
     return queue_indices.isValid() && extensions_supported && swap_chain_vaild;
 }
 
+/**
+ * @brief Best format depends on implementation. Setting defaults for now.
+ *        Format     : VK_FORMAT_R8G8B8A8_UNORM || VK_FORMAT_B8G8R8A8_UNORM as backup
+ *        Color Space: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+ * 
+ * @param formats: A vector of Vulkan Formats
+ * @return VkSurfaceFormatKHR: Best choice Vulkan Format 
+ */
+VkSurfaceFormatKHR VulkanContext::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats)
+{
+    // Case where all the formats are available
+    if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
+        return { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+    }
+
+    for (const VkSurfaceFormatKHR &format : formats) {
+        if ((format.format == VK_FORMAT_R8G8B8A8_UNORM || format.format == VK_FORMAT_B8G8R8A8_UNORM) &&
+             format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) 
+            return format;
+    }
+
+    return formats[0];
+}
+
+/**
+ * @brief Checks for support of VK_PRESENT_MODE_MAILBOX_KHR.
+ *        If not available, returns VK_PRESENT_MODE_FIFO_KHR.
+ * 
+ * @param presentation_modes: A vector of Vulkan presentation modes
+ * @return VkPresentModeKHR: Best presentation mode option 
+ */
+VkPresentModeKHR VulkanContext::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> &presentation_modes)
+{
+    for (const VkPresentModeKHR &pres_mode : presentation_modes) {
+        if (pres_mode == VK_PRESENT_MODE_MAILBOX_KHR) 
+            return pres_mode;
+    }
+    // Per the Vulkan spec: VK_PRESENT_MODE_FIFO_KHR must always be available
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+/**
+ * @brief 
+ *        VkExtent2D: size that swap chain images will be based on the surface capabilities
+ * 
+ * @param surface_capabilities 
+ * @return VkExtent2D 
+ */
+VkExtent2D VulkanContext::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surface_capabilities)
+{
+    //
+    // If current extent is at numeric limits, then the extent can vary. 
+    // Otherwise, it it the size of the window.
+    // If value can vary, will need to set manually.
+    //
+
+    // If the current extent does not equal max uint32_t, then the current extent value can't vary.
+    if (surface_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) 
+        return surface_capabilities.currentExtent;
+
+    // Current Extent width is equal to max uint32_t, so need to create usable current extent
+    int width, height;
+    glfwGetFramebufferSize(m_VukanConfig->window, &width, &height);
+
+    // Create new extent using window size
+    VkExtent2D new_extent = {};
+    new_extent.width      = (uint32_t)width;
+    new_extent.height     = (uint32_t)height;
+
+    // Ensure the new width and height are between min and max image extent
+    new_extent.width = std::max(surface_capabilities.minImageExtent.width, std::min(surface_capabilities.maxImageExtent.width, new_extent.width));
+    new_extent.height = std::max(surface_capabilities.minImageExtent.height, std::min(surface_capabilities.maxImageExtent.height, new_extent.height));
+
+    return new_extent;
+}
+
 QueueFamilyIndices VulkanContext::getQueueFamilies(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices;
@@ -431,8 +603,8 @@ QueueFamilyIndices VulkanContext::getQueueFamilies(VkPhysicalDevice device)
  *          2) Image Formats
  *          3) Presentation Modes
  * 
- * @param device 
- * @return SwapChainDetails 
+ * @param device: A handle to a Vulkan Physical Device
+ * @return SwapChainDetails: A filled out SwapChainDetails struct 
  */
 SwapChainDetails VulkanContext::getSwapChainDetails(VkPhysicalDevice device)
 {

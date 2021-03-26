@@ -6,6 +6,8 @@
 #include "Common.h"
 #include "Utils.h"
 
+// Vulkan Boilerplate source: https://www.udemy.com/course/learn-the-vulkan-api-with-cpp/
+
 namespace AR
 {
 
@@ -55,14 +57,17 @@ private:
     // Vulkan Components
     //
     VkInstance m_VulkanInstance;
-    
     VkPhysicalDevice m_PhysicalDevice;
     VkDevice m_LogicalDevice;
-
     VkQueue m_GraphicsQueue;
     VkQueue m_PresentationQueue;
-
     VkSurfaceKHR m_Surface;
+    VkSwapchainKHR m_SwapChain;
+    std::vector<SwapChainImage> m_SwapChainImages;
+
+    VkFormat m_SwapChainImageFormat;
+    VkExtent2D m_SwapChainExtent;
+
 
     //
     // Vulkan Init Methods
@@ -71,6 +76,7 @@ private:
     void createSurface(VulkanConfig &v_config);
     void pickPhysicalDevice();
     void createLogicalDevice(VulkanConfig &v_config);
+    void createSwapChain();
 
     //
     // Support Methods
@@ -79,7 +85,9 @@ private:
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     bool checkExtensionSupport(std::vector<const char *> &extensions);
     bool isSuitableDevice(VkPhysicalDevice device);
-
+    VkSurfaceFormatKHR chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats);
+    VkPresentModeKHR chooseBestPresentationMode(const std::vector<VkPresentModeKHR> &presentation_modes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surface_capabilities);
 
     QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
     SwapChainDetails getSwapChainDetails(VkPhysicalDevice device);
